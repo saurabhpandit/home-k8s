@@ -1,0 +1,125 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: blocky
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: blocky
+      version: 5.0.0
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: spx01/blocky
+      tag: v0.13
+      pullPolicy: IfNotPresent
+
+    nameOverride: ""
+    fullnameOverride: ""
+
+    replicas: 2
+
+    timeZone: "Australia/Melbourne"
+
+    # Blocky configuration, for a full list of options see
+    # https://github.com/0xERR0R/blocky/blob/master/docs/config.yml
+    config: |
+      upstream:
+        # these external DNS resolvers will be used. Blocky picks 2 random resolvers from the list for each query
+        # format for resolver: [net:]host:[port][/path]. net could be empty (default, shortcut for tcp+udp), tcp+udp, tcp, udp, tcp-tls or https (DoH). If port is empty, default port will be used (53 for udp and tcp, 853 for tcp-tls, 443 for https (Doh))
+        externalResolvers:
+          - 8.8.8.8
+          - 8.8.4.4
+
+      # optional: custom IP address for domain name (with all sub-domains)
+      # example: query "printer.lan" or "my.printer.lan" will return 192.168.178.3
+      customDNS:
+        mapping:
+          printer.lan: 192.168.1.5
+          k8s.lan: 192.168.1.20
+
+      # optional: definition, which DNS resolver(s) should be used for queries to the domain (with all sub-domains). Multiple resolvers must be separated by comma
+      # Example: Query client.fritz.box will ask DNS server 194.168.178.1. This is necessary for local network, to resolve clients by host name
+      conditional:
+        mapping:
+          lan: udp:192.168.4.10
+      # optional: use black and white lists to block queries (for example ads, trackers, adult pages etc.)
+      blocking:
+        # definition of blacklist groups. Can be external link (http/https) or local file
+        blackLists:
+          ads:
+            - https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+            - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+            - https://mirror1.malwaredomains.com/files/justdomains
+            - http://sysctl.org/cameleon/hosts
+            - https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist
+            - https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
+            - https://raw.githubusercontent.com/ookangzheng/dbl-oisd-nl/master/dbl.txt
+          special:
+            - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts 
+
+        # definition of whitelist groups. Attention: if the same group has black and whitelists, whitelists will be used to disable particular blacklist entries. If a group has only whitelist entries -> this means only domains from this list are allowed, all other domains will be blocked
+        whiteLists:
+          ads:
+            - https://raw.githubusercontent.com/anudeepND/whitelist/master/domains/whitelist.txt
+        # definition: which groups should be applied for which client
+        clientGroupsBlock:
+          # default will be used, if no special definition for a client name exists
+          default:
+            - ads
+            - special
+
+    # optional: configuration of client name resolution
+    clientLookup:
+      # optional: this DNS resolver will be used to perform reverse DNS lookup (typically local router)
+      upstream: udp:192.168.1.1
+
+    service:
+      type: LoadBalancer
+      externalIPs:
+        - 192.168.4.10
+      externalTrafficPolicy: Local
+      loadBalancerIP: 192.168.4.10
+      annotations:
+        metallb.universe.tf/allow-shared-ip: blocky-svc
+
+    serviceTCP:
+      enabled: true
+      externalIPs:
+        - 192.168.4.10
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      loadBalancerIP: 192.168.4.10
+      annotations:
+        metallb.universe.tf/allow-shared-ip: blocky-svc
+
+    serviceUDP:
+      enabled: true
+      externalIPs:
+        - 192.168.4.10
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      loadBalancerIP: 192.168.4.10
+      annotations:
+        metallb.universe.tf/allow-shared-ip: blocky-svc
+
+    resources:
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      limits:
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 275Mi
+
+
