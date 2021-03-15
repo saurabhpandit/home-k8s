@@ -4,3 +4,4 @@ resources:
   - ../../base/flux-system
   - ../../base/network
   - ../../base/network/blocky
+  - ../../base/network/metallb
