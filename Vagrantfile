@@ -13,24 +13,24 @@ cpus = case RbConfig::CONFIG["host_os"]
   else 2
 end
 
-NODES_NUM = 3
+NODES_NUM = 2
 IP_BASE_PRIVATE = "192.168.1."
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.insert_key = false
 
   (1..NODES_NUM).each do |i|
-    config.vm.define "k8s-node-#{i + 9}" do |config|
+    config.vm.define "k8s-node-#{i + 29}" do |config|
 
-      hostname = "k8s-node-#{i + 9}"
+      hostname = "k8s-node-#{i + 29}"
 
       memory = case hostname
-        when "k8s-node-10" then 2048
-        else 1024
+        when "k8s-node-30" then 2048
+        else 2048
       end
 
       config.vm.box = "bento/ubuntu-20.04"
-      config.vm.network "public_network", ip: "#{IP_BASE_PRIVATE}#{i + 9}"
+      config.vm.network "public_network", ip: "#{IP_BASE_PRIVATE}#{i + 29}"
       config.vm.hostname = hostname
       config.vm.provider "virtualbox"
       config.vm.provider :virtualbox do |v|
@@ -47,7 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ]
 
         # Create a block device for Longhorn on the worker nodes
-        if hostname != "k8s-node-10"
+        if hostname != "k8s-node-30"
           disk = "./"+hostname+"-block.vdi"
           unless File.exist?(disk)
             v.customize [
