@@ -6,3 +6,5 @@ resources:
   - ../../base/network/metallb
   - ../../base/network/blocky
   - ../../base/observability
+  - ../../base/observability/loki-stack
+  - ../../base/observability/kube-prometheus-stack
