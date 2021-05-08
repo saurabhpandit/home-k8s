@@ -1,0 +1,121 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: observability
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 14.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community-charts
+        namespace: flux-system
+      interval: 10m
+  values:
+    defaultRules:
+      create: true
+      rules:
+        alertmanager: true
+        etcd: true
+        general: true
+        k8s: true
+        kubeApiserver: true
+        kubeApiserverAvailability: true
+        kubeApiserverError: true
+        kubeApiserverSlos: true
+        kubelet: true
+        kubePrometheusGeneral: true
+        kubePrometheusNodeAlerting: true
+        kubePrometheusNodeRecording: true
+        kubernetesAbsent: true
+        kubernetesApps: false # kube-state-metrics crash
+        kubernetesResources: false # over committed on single node
+        kubernetesStorage: true
+        kubernetesSystem: false # can't scrape
+        kubeScheduler: false # can't scrape
+        kubeStateMetrics: true
+        network: true
+        node: true
+        prometheus: true
+        prometheusOperator: true
+        time: true
+
+    kubelet:
+      enabled: true
+
+    kubeControllerManager:
+      enabled: false
+
+    kubeScheduler:
+      enabled: true
+
+    grafana:
+      deploymentStrategy:
+        type: Recreate
+      service:
+        nodePort: ""
+        type: ClusterIP
+      additionalDataSources:
+        - name: Loki
+          type: loki
+          url:  http://loki-stack.observability.svc.cluster.local:3100
+      plugins:
+        - natel-discrete-panel
+        - pr0ps-trackmap-panel
+        - grafana-piechart-panel
+        - vonage-status-panel
+        - grafana-worldmap-panel
+        - btplc-status-dot-panel
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+      dashboards:
+        default:
+          cert-manager:
+            url: https://grafana.com/api/dashboards/11001/revisions/1/download
+            datasource: Prometheus
+          cilium-operator:
+            url: https://grafana.com/api/dashboards/10598/revisions/1/download
+            datasource: Prometheus
+          cilium-agent:
+            url: https://grafana.com/api/dashboards/10596/revisions/1/download
+            datasource: Prometheus
+          flux-cluster:
+            url: https://raw.githubusercontent.com/fluxcd/flux2/v0.4.2/manifests/monitoring/grafana/dashboards/cluster.json
+            datasource: Prometheus
+          flux-control-plane:
+            url: https://raw.githubusercontent.com/fluxcd/flux2/v0.4.2/manifests/monitoring/grafana/dashboards/control-plane.json
+            datasource: Prometheus
+
+          istio-mesh:
+            url: https://grafana.com/api/dashboards/7639/revisions/44/download
+            datasource: Prometheus
+          istio-service:
+            url: https://grafana.com/api/dashboards/7636/revisions/44/download
+            datasource: Prometheus
+          istio-workload:
+            url: https://grafana.com/api/dashboards/7630/revisions/44/download
+            datasource: Prometheus
+          istio-performence:
+            url: https://grafana.com/api/dashboards/11829/revisions/44/download
+            datasource: Prometheus
+          istio-control-plane:
+            url: https://grafana.com/api/dashboards/7645/revisions/44/download
+            datasource: Prometheus
+
+          toolkit-control-plane:
+            url: https://raw.githubusercontent.com/fluxcd/toolkit/main/manifests/monitoring/grafana/dashboards/control-plane.json
+            datasource: Prometheus
