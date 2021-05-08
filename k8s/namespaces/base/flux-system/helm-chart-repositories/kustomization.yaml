@@ -3,3 +3,5 @@ kind: Kustomization
 resources:
   - k8s-at-home-charts.yaml
   - bitnami-charts.yaml
+  - grafana-charts.yaml
+  - prometheus-community-charts.yaml
