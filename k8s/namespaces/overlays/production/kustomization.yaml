@@ -5,4 +5,4 @@ resources:
   - ../../base/network
   - ../../base/network/metallb
   - ../../base/network/blocky
-  - ../../base/network/observability
+  - ../../base/observability
