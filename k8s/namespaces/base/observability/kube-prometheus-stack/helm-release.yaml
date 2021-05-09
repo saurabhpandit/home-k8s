@@ -57,8 +57,8 @@ spec:
       deploymentStrategy:
         type: Recreate
       service:
-        nodePort: ""
-        type: ClusterIP
+        # Required for istio - https://istio.io/latest/docs/reference/config/analysis/ist0118/
+        portName: http-service
       additionalDataSources:
         - name: Loki
           type: loki
