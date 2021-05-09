@@ -116,6 +116,6 @@ spec:
             url: https://grafana.com/api/dashboards/7645/revisions/44/download
             datasource: Prometheus
 
-          toolkit-control-plane:
-            url: https://raw.githubusercontent.com/fluxcd/toolkit/main/manifests/monitoring/grafana/dashboards/control-plane.json
-            datasource: Prometheus
+          # toolkit-control-plane:
+          #   url: https://raw.githubusercontent.com/fluxcd/toolkit/main/manifests/monitoring/grafana/dashboards/control-plane.json
+          #   datasource: Prometheus

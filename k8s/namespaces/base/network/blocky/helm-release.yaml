@@ -43,8 +43,7 @@ spec:
       # example: query "printer.lan" or "my.printer.lan" will return 192.168.178.3
       customDNS:
         mapping:
-          printer.lan: 192.168.1.5
-          k8s.lan: 192.168.1.20
+          espynet.ddns.net: 192.168.4.100
 
       # optional: definition, which DNS resolver(s) should be used for queries to the domain (with all sub-domains). Multiple resolvers must be separated by comma
       # Example: Query client.fritz.box will ask DNS server 194.168.178.1. This is necessary for local network, to resolve clients by host name
@@ -64,7 +63,7 @@ spec:
             - https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
             - https://raw.githubusercontent.com/ookangzheng/dbl-oisd-nl/master/dbl.txt
           special:
-            - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts 
+            - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts
 
         # definition of whitelist groups. Attention: if the same group has black and whitelists, whitelists will be used to disable particular blacklist entries. If a group has only whitelist entries -> this means only domains from this list are allowed, all other domains will be blocked
         whiteLists:
@@ -81,7 +80,7 @@ spec:
       clientLookup:
         # optional: this DNS resolver will be used to perform reverse DNS lookup (typically local router)
         upstream: udp:192.168.1.1
-  
+
       # optional: DNS listener port and bind ip address, default 53 (UDP and TCP). Example: 53, :53, 127.0.0.1:53
       port: 53
       # optional: HTTP listener port, default 0 = no http listener. If > 0, will be used for prometheus metrics, pprof, REST API, DoH ...
@@ -137,5 +136,3 @@ spec:
       requests:
         cpu: 100m
         memory: 275Mi
-
-
